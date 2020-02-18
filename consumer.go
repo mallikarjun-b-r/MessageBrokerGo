@@ -32,6 +32,7 @@ func NewConsumer(fqdn string, consumerQueue chan chan string) Consumer {
 func (c *Consumer) start() {
 	go func() {
 		for {
+			//Adding the current consumer.messeges to consumerQueue to accept messeges from dispatcher
 			c.consumerQueue <- c.messeges
 			select {
 			case messege := <-c.messeges:

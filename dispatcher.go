@@ -25,7 +25,7 @@ func startDispatcher() {
 		consumer.start()
 	}
 
-	//If a messges is available in the buffer channel sends it to a first available conusmer channel to process it
+	//If a messges is available in the buffer channel sends it to a first available conusmer to process it
 	go func() {
 		for {
 			if runtime.NumGoroutine() > 300000 {
