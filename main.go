@@ -19,7 +19,7 @@ var wg sync.WaitGroup
 
 func main() {
 
-	// nit Router
+	// Init Router
 	router := fasthttprouter.New()
 	//debug.SetGCPercent(-1)(disable gc if needed)
 
