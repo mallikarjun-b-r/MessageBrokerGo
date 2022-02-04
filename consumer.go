@@ -2,8 +2,6 @@ package main
 
 import (
 	"log"
-
-	"github.com/valyala/fasthttp"
 )
 
 var consumerSlice []string
@@ -45,21 +43,6 @@ func (c *Consumer) start() {
 }
 
 func sendMessege(messege string, c *Consumer) {
-	req := fasthttp.AcquireRequest()
-	req.SetBody([]byte(messege))
-	req.Header.SetMethodBytes(strPost)
-	req.SetRequestURIBytes([]byte(c.fqdn))
-	//fmt.Println("noOfGoRoutinesStart", runtime.NumGoroutine())
-	res := fasthttp.AcquireResponse()
-	if err := fasthttp.Do(req, res); err != nil {
-		log.Println("Consumer Delivery Failed Adding messege back to channel", err)
-		messegeQueue <- messege
-		failedMesseges++
-		fasthttp.ReleaseRequest(req)
-		return
-	}
-	fasthttp.ReleaseRequest(req)
-	messegesProcessed++
 }
 
 func (c *Consumer) stop() {

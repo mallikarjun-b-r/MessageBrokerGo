@@ -31,5 +31,5 @@ func main() {
 	startDispatcher()
 
 	fmt.Println("noOfGoRoutinesStart", runtime.NumGoroutine())
-	log.Fatal(fasthttp.ListenAndServe(":8000", router.Handler))
+	log.Fatal(fasthttp.ListenAndServe(":8080", router.Handler))
 }
