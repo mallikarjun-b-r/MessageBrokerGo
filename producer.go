@@ -4,16 +4,23 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"os"
+	"time"
+
 	"github.com/valyala/fasthttp"
 )
 
 func fastHTTPHandlerPost(ctx *fasthttp.RequestCtx) {
-	message :=string(ctx.PostBody())
-	num := rand.Intn(40000)
-	ioutil.WriteFile(fmt.Sprintf("/Users/naman/Personalspace/temp/data/file-%d", num), 
-	[]byte(fmt.Sprintf("%d\n%s", num, message)),0777)
+	message := string(ctx.PostBody())
+	num := rand.Intn(100000)
+	dt := time.Now().String()[18:19]
 
-	ctx.Response.SetBody([]byte(message))
+	file_name := fmt.Sprintf("/Users/naman/Personalspace/temp/data/file-%d-%s", num, dt)
+
+	os.Remove(file_name)
+	ioutil.WriteFile(file_name, []byte(fmt.Sprintf("%d\n%s", num, message)), 0777)
+
+	// ctx.Response.SetBody([]byte(message))
 	ctx.Response.SetStatusCode(200)
 }
 
