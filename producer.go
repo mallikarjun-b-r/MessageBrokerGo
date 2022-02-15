@@ -3,21 +3,24 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"math/rand"
+
 	"github.com/valyala/fasthttp"
 )
 
-func fastHTTPHandlerPost(ctx *fasthttp.RequestCtx) {
-	message :=string(ctx.PostBody())
-	num := rand.Intn(40000)
-	ioutil.WriteFile(fmt.Sprintf("/Users/naman/Personalspace/temp/data/file-%d", num), 
-	[]byte(fmt.Sprintf("%d\n%s", num, message)),0777)
+var dir = "/Users/naman/Personalspace/temp/data/file-%s"
 
-	ctx.Response.SetBody([]byte(message))
+func fastHTTPHandlerPost(ctx *fasthttp.RequestCtx) {
+	ioutil.WriteFile(fmt.Sprintf(dir, ctx.UserValue("probeId")), ctx.PostBody(), 0666)
 	ctx.Response.SetStatusCode(200)
 }
 
 //Mainly to get the details about stats
 func fastHTTPHandlerGet(ctx *fasthttp.RequestCtx) {
-	ctx.SetStatusCode(200)
+	file, err := ioutil.ReadFile(fmt.Sprintf(dir, ctx.UserValue("probeId")))
+	if err != nil {
+		ctx.SetStatusCode(404)
+	} else {
+		ctx.Response.SetBody(file)
+		ctx.SetStatusCode(200)
+	}
 }
