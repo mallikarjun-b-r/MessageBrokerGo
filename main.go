@@ -15,7 +15,7 @@ func main() {
 	router := fasthttprouter.New()
 	//debug.SetGCPercent(-1)(disable gc if needed)
 
-	router.PUT("/probe/:probeId/event/:eventId", fastHTTPHandlerPost)
+	router.PUT("/probe/:probeId/event/:eventId", fastHTTPHandlerPut)
 	router.GET("/probe/:probeId/latest", fastHTTPHandlerGet)
 
 	fmt.Println("noOfGoRoutinesStart", runtime.NumGoroutine())

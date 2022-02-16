@@ -10,7 +10,7 @@ import (
 
 var dir = "/Users/naman/Personalspace/temp/data/file-%s"
 
-func fastHTTPHandlerPost(ctx *fasthttp.RequestCtx) {
+func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
 	os.Remove(fmt.Sprintf(dir, ctx.UserValue("probeId")))
 	ioutil.WriteFile(fmt.Sprintf(dir, ctx.UserValue("probeId")), ctx.PostBody(), 0666)
 	ctx.Response.SetStatusCode(200)
