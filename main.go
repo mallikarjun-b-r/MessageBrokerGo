@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"runtime"
 
 	"github.com/buaazp/fasthttprouter"
+	"github.com/buger/jsonparser"
 	"github.com/valyala/fasthttp"
 )
 
@@ -14,7 +16,22 @@ func main() {
 	// Init Router
 	router := fasthttprouter.New()
 	//debug.SetGCPercent(-1)(disable gc if needed)
+	files, err := ioutil.ReadDir("/tmp/big-o/")
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	for _, file := range files {
+		name := file.Name()
+		data, err := ioutil.ReadFile("/tmp/big-o/" + name)
+		if err != nil {
+			panic(err)
+		}
+		transmissionTime, _ := jsonparser.GetString(data, "eventTransmissionTime")
+		fmt.Println("file" + name)
+		fmt.Println(data)
+		writeToCache(name, transmissionTime)
+	}
 	router.PUT("/probe/:probeId/event/:eventId", fastHTTPHandlerPut)
 	router.GET("/probe/:probeId/latest", fastHTTPHandlerGet)
 
