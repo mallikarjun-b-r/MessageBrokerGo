@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"strconv"
 
 	"github.com/buger/jsonparser"
 	"github.com/cornelk/hashmap"
@@ -19,18 +18,15 @@ func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
 	probeId := ctx.UserValue("probeId")
 	body := ctx.PostBody()
 	fileName := fmt.Sprintf("file-%s", probeId)
-	transmissionTime, _ := jsonparser.GetString(body, "eventTransmissionTime")
-	if savedTransmissionTime, ok := cache.Get(fileName); ok {
+	transmissionTime, _ := jsonparser.GetInt(body, "eventTransmissionTime")
+	if savedTime, ok := cache.Get(fileName); ok {
+		var savedTransmissionTime = savedTime.(int64)
+		// fmt.Print("saved ")
+		// fmt.Println(savedTransmissionTime)
+		// fmt.Print("current ")
+		// fmt.Println(transmissionTime)
 
-		savedInt, _ := strconv.ParseInt(savedTransmissionTime.(string), 10, 64)
-		currentInt, _ := strconv.ParseInt(transmissionTime, 10, 64)
-		fmt.Print("saved ")
-		fmt.Println(savedInt)
-		fmt.Print("current ")
-		fmt.Println(currentInt)
-		fmt.Print("resultbool cmp ")
-
-		if savedInt > currentInt {
+		if savedTransmissionTime > transmissionTime {
 			ctx.Response.SetStatusCode(200)
 			return
 		}
@@ -51,6 +47,6 @@ func fastHTTPHandlerGet(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-func writeToCache(fileName string, transmissionTime string) {
+func writeToCache(fileName string, transmissionTime int64) {
 	cache.Set(fileName, transmissionTime)
 }

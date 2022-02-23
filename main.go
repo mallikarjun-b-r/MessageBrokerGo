@@ -27,9 +27,9 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		transmissionTime, _ := jsonparser.GetString(data, "eventTransmissionTime")
-		fmt.Println("file" + name)
-		fmt.Println(data)
+		transmissionTime, _ := jsonparser.GetInt(data, "eventTransmissionTime")
+		// fmt.Println("file" + name)
+		// fmt.Println(data)
 		writeToCache(name, transmissionTime)
 	}
 	router.PUT("/probe/:probeId/event/:eventId", fastHTTPHandlerPut)
