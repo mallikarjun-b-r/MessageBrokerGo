@@ -3,28 +3,30 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
+	"time"
 
 	"github.com/buger/jsonparser"
 	"github.com/cornelk/hashmap"
 	"github.com/valyala/fasthttp"
 )
 
-var dir = "/tmp/big-o/file-%s"
+var dir = "/data/file-%s"
 var cache = &hashmap.HashMap{}
 
 func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
-	//os.Remove(fmt.Sprintf(dir, ctx.UserValue("probeId")))
-
 	probeId := ctx.UserValue("probeId")
 	body := ctx.PostBody()
 	fileName := fmt.Sprintf("file-%s", probeId)
-	transmissionTime, _ := jsonparser.GetInt(body, "eventTransmissionTime")
+	transmissionTime, err := jsonparser.GetInt(body, "eventTransmissionTime")
+
+	if (err != nil) {
+		ctx.SetStatusCode(400)
+		return
+	}
+
 	if savedTime, ok := cache.Get(fileName); ok {
 		var savedTransmissionTime = savedTime.(int64)
-		// fmt.Print("saved ")
-		// fmt.Println(savedTransmissionTime)
-		// fmt.Print("current ")
-		// fmt.Println(transmissionTime)
 
 		if savedTransmissionTime > transmissionTime {
 			ctx.Response.SetStatusCode(200)
@@ -32,7 +34,14 @@ func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	ioutil.WriteFile(fmt.Sprintf(dir, ctx.UserValue("probeId")), ctx.PostBody(), 0666)
+	updated, err := jsonparser.Set(body, []byte(fmt.Sprintf("%d", time.Now().UnixMilli())), "eventReceivedTime")
+	if (err != nil) {
+		ctx.SetStatusCode(400)
+		return
+	}
+
+	os.Remove(fmt.Sprintf(dir, ctx.UserValue("probeId")))
+	ioutil.WriteFile(fmt.Sprintf(dir, ctx.UserValue("probeId")), updated, 0666)
 	writeToCache(fileName, transmissionTime)
 	ctx.Response.SetStatusCode(200)
 }
