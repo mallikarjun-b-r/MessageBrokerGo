@@ -16,14 +16,14 @@ func main() {
 	// Init Router
 	router := fasthttprouter.New()
 	//debug.SetGCPercent(-1)(disable gc if needed)
-	files, err := ioutil.ReadDir("/tmp/big-o/")
+	files, err := ioutil.ReadDir("/data/")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, file := range files {
 		name := file.Name()
-		data, err := ioutil.ReadFile("/tmp/big-o/" + name)
+		data, err := ioutil.ReadFile("/data/" + name)
 		if err != nil {
 			panic(err)
 		}

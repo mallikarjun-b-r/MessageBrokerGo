@@ -3,18 +3,16 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-
+        "os"
 	"github.com/buger/jsonparser"
 	"github.com/cornelk/hashmap"
 	"github.com/valyala/fasthttp"
 )
 
-var dir = "/tmp/big-o/file-%s"
+var dir = "/data/file-%s"
 var cache = &hashmap.HashMap{}
 
 func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
-	//os.Remove(fmt.Sprintf(dir, ctx.UserValue("probeId")))
-
 	probeId := ctx.UserValue("probeId")
 	body := ctx.PostBody()
 	fileName := fmt.Sprintf("file-%s", probeId)
@@ -31,7 +29,8 @@ func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
 			return
 		}
 	}
-
+	
+	os.Remove(fmt.Sprintf(dir, ctx.UserValue("probeId")))
 	ioutil.WriteFile(fmt.Sprintf(dir, ctx.UserValue("probeId")), ctx.PostBody(), 0666)
 	writeToCache(fileName, transmissionTime)
 	ctx.Response.SetStatusCode(200)
