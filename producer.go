@@ -11,7 +11,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-var dir = "/data/file-%s"
+var dir = "/tmp/data/"
+var fileTemplate = dir + "file-%s"
 var cache = &hashmap.HashMap{}
 
 func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
@@ -20,7 +21,7 @@ func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
 	fileName := fmt.Sprintf("file-%s", probeId)
 	transmissionTime, err := jsonparser.GetInt(body, "eventTransmissionTime")
 
-	if (err != nil) {
+	if err != nil {
 		ctx.SetStatusCode(400)
 		return
 	}
@@ -35,25 +36,23 @@ func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
 	}
 
 	updated, err := jsonparser.Set(body, []byte(fmt.Sprintf("%d", time.Now().UnixMilli())), "eventReceivedTime")
-	if (err != nil) {
+	if err != nil {
 		ctx.SetStatusCode(400)
 		return
 	}
 
-	os.Remove(fmt.Sprintf(dir, ctx.UserValue("probeId")))
-	ioutil.WriteFile(fmt.Sprintf(dir, ctx.UserValue("probeId")), updated, 0666)
+	os.Remove(fmt.Sprintf(fileTemplate, ctx.UserValue("probeId")))
+	ioutil.WriteFile(fmt.Sprintf(fileTemplate, ctx.UserValue("probeId")), updated, 0666)
 	writeToCache(fileName, transmissionTime)
-	ctx.Response.SetStatusCode(200)
 }
 
 func fastHTTPHandlerGet(ctx *fasthttp.RequestCtx) {
-	file, err := ioutil.ReadFile(fmt.Sprintf(dir, ctx.UserValue("probeId")))
+	file, err := ioutil.ReadFile(fmt.Sprintf(fileTemplate, ctx.UserValue("probeId")))
 	if err != nil {
 		ctx.SetStatusCode(404)
-	} else {
-		ctx.Response.SetBody(file)
-		ctx.SetStatusCode(200)
 	}
+	
+	ctx.Response.SetBody(file)
 }
 
 func writeToCache(fileName string, transmissionTime int64) {
