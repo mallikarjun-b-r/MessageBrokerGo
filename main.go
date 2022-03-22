@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"runtime"
+	"strings"
 
 	"github.com/buaazp/fasthttprouter"
 	"github.com/buger/jsonparser"
@@ -22,19 +24,28 @@ func main() {
 	}
 
 	for _, file := range files {
-		name := file.Name()
-		data, err := ioutil.ReadFile(dir + name)
-		if err != nil {
-			panic(err)
-		}
-		transmissionTime, _ := jsonparser.GetInt(data, "eventTransmissionTime")
-		// fmt.Println("file" + name)
-		// fmt.Println(data)
-		writeToCache(name, transmissionTime)
+		go loadFile(file.Name())
 	}
 	router.PUT("/probe/:probeId/event/:eventId", fastHTTPHandlerPut)
 	router.GET("/probe/:probeId/latest", fastHTTPHandlerGet)
 
 	fmt.Println("noOfGoRoutinesStart", runtime.NumGoroutine())
 	log.Fatal(fasthttp.ListenAndServe(":8080", router.Handler))
+}
+
+func loadFile(fileName string) {
+	if(strings.HasSuffix(fileName, ".swp")) {
+		nameWithoutSwp := strings.Replace(fileName, ".swp", "", 1)
+		os.Remove(dir + nameWithoutSwp)
+		os.Rename(dir + fileName, dir + nameWithoutSwp)
+		fileName = nameWithoutSwp
+	}
+
+	data, err := ioutil.ReadFile(dir + fileName)
+	if err != nil {
+		panic(err)
+	}
+
+	transmissionTime, _ := jsonparser.GetInt(data, "eventTransmissionTime")
+	writeToCache(fileName, transmissionTime)
 }

@@ -41,8 +41,9 @@ func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	os.Remove(fmt.Sprintf(fileTemplate, ctx.UserValue("probeId")))
-	ioutil.WriteFile(fmt.Sprintf(fileTemplate, ctx.UserValue("probeId")), updated, 0666)
+	os.Rename(fileName, fileName+".swp")
+	ioutil.WriteFile(dir + fileName, updated, 0666)
+	os.Remove(fileName + ".swp")
 	writeToCache(fileName, transmissionTime)
 }
 
