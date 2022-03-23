@@ -26,9 +26,8 @@ func fastHTTPHandlerPut(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	if savedTime, ok := cache.Get(fileName); ok {
-		var savedTransmissionTime = savedTime.(int64)
-
+	if file, err := ioutil.ReadFile(fmt.Sprintf(fileTemplate, ctx.UserValue("probeId"))); err == nil {
+		savedTransmissionTime, _ := jsonparser.GetInt(file, "eventTransmissionTime")
 		if savedTransmissionTime > transmissionTime {
 			ctx.Response.SetStatusCode(200)
 			return
