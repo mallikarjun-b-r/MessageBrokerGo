@@ -1,3 +1,4 @@
+#!/bin/sh
 set -ex
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/local/go/bin
 
